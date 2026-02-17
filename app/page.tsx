@@ -1,17 +1,54 @@
 import type { Metadata } from 'next'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 import { ARCHETYPE_LIST } from '@/lib/archetypes'
+import type { ArchetypeKey } from '@/lib/archetypes'
 import { DIMENSION_ORDER, DIMENSIONS } from '@/lib/dimensions'
 import LandingEmailForm from '@/components/LandingEmailForm'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const metadata: Metadata = {
   title: APP_NAME,
   description: APP_DESCRIPTION,
 }
 
-export default function LandingPage() {
+interface Props {
+  searchParams: { ref?: string; error?: string }
+}
+
+export default async function LandingPage({ searchParams }: Props) {
+  // Resolve referral banner archetype from share code
+  let referralArchetype: (typeof ARCHETYPE_LIST)[number] | null = null
+
+  if (searchParams.ref) {
+    const admin = createAdminClient()
+    const { data: profile } = await admin
+      .from('founder_profiles')
+      .select('archetype_key')
+      .eq('share_code', searchParams.ref)
+      .maybeSingle()
+
+    if (profile) {
+      referralArchetype =
+        ARCHETYPE_LIST.find((a) => a.key === (profile.archetype_key as ArchetypeKey)) ?? null
+    }
+  }
+
   return (
     <main className="flex flex-col min-h-screen">
+      {/* ─── Referral banner ──────────────────────────────────────────── */}
+      {referralArchetype && (
+        <div className={`bg-gradient-to-r ${referralArchetype.color} text-white px-4 py-3 text-center text-sm font-medium`}>
+          {referralArchetype.emoji} A {referralArchetype.name} thinks you should take this.
+        </div>
+      )}
+
+      {/* ─── Auth error ───────────────────────────────────────────────── */}
+      {searchParams.error === 'auth' && (
+        <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 px-4 py-3 text-center text-sm">
+          Authentication failed. Please try again.
+        </div>
+      )}
+
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="flex flex-col items-center justify-center px-4 pt-20 pb-16 text-center bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
         <span className="text-5xl mb-4">🧭</span>
