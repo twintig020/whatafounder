@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #0f172a;
+  --background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground: #f8fafc;
+    --background: #0f172a;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shift on mobile: no horizontal scroll */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Touch tap highlight off */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Animated progress bar */
+@keyframes grow {
+  from { width: 0%; }
+  to   { width: var(--target-width); }
+}
+
+.animate-grow {
+  animation: grow 0.8s ease-out forwards;
+}

@@ -1,0 +1,24 @@
+{
+  "name": "What a Founder",
+  "short_name": "WaFounder",
+  "description": "Discover your founder archetype in 3 days.",
+  "start_url": "/whatafounder/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/whatafounder/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/whatafounder/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

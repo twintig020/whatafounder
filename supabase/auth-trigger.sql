@@ -1,0 +1,16 @@
+-- What a Founder — Auth trigger
+-- Creates a row in public.users when a new Supabase Auth user signs up
+-- Run AFTER schema.sql and rls.sql
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.users (id, email)
+  values (new.id, new.email);
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
