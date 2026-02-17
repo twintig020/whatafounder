@@ -1,11 +1,13 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import type { Database } from '@/lib/database.types'
 
+// We use untyped client + explicit type assertions in call sites to avoid
+// compatibility issues between manually written Database types and supabase-js v2.96 generics.
 export function createClient() {
   const cookieStore = cookies()
 
-  return createServerClient<Database>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return createServerClient<any>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

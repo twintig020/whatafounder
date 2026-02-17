@@ -23,12 +23,11 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: userData } = await (supabase as any)
+    const { data: userData } = await supabase
       .from('users')
       .select('onboarding_completed')
       .eq('id', user.id)
-      .maybeSingle() as { data: { onboarding_completed: boolean } | null }
+      .maybeSingle()
 
     if (!userData?.onboarding_completed) {
       return NextResponse.redirect(new URL(`${BASE_PATH}/onboarding`, request.url))

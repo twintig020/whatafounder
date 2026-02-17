@@ -55,6 +55,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       user_consents: {
         Row: {
@@ -81,6 +82,7 @@ export type Database = {
           ip_address?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       questions: {
         Row: {
@@ -128,6 +130,7 @@ export type Database = {
           reverse_scored?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       answers: {
         Row: {
@@ -157,6 +160,7 @@ export type Database = {
           scored_value?: number | null
           created_at?: string
         }
+        Relationships: []
       }
       dimension_scores: {
         Row: {
@@ -180,6 +184,7 @@ export type Database = {
           score?: number
           updated_at?: string
         }
+        Relationships: []
       }
       founder_profiles: {
         Row: {
@@ -215,6 +220,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       referrals: {
         Row: {
@@ -244,12 +250,14 @@ export type Database = {
           converted_at?: string | null
           created_at?: string
         }
+        Relationships: []
       }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
+    Views: { [key: string]: never }
+    Functions: { [key: string]: never }
     Enums: {
       question_type: 'likert' | 'forced_choice' | 'reflection'
     }
+    CompositeTypes: { [key: string]: never }
   }
 }
