@@ -2,22 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { BASE_PATH } from '@/lib/constants'
 import LikertQuestion from './LikertQuestion'
 import ForcedChoiceQuestion from './ForcedChoiceQuestion'
 import ReflectionQuestion from './ReflectionQuestion'
-import type { Database } from '@/lib/database.types'
-
-type Question = Database['public']['Tables']['questions']['Row']
+import type { Question } from '@/lib/questions'
 
 interface Props {
   userId: string
-  day: number
+  day: 1 | 2 | 3
   questions: Question[]
 }
 
-export default function SessionUI({ userId, day, questions }: Props) {
+export default function SessionUI({ day, questions }: Props) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -35,39 +32,27 @@ export default function SessionUI({ userId, day, questions }: Props) {
     setError(null)
 
     try {
-      const supabase = createClient()
-
-      // Save all answers
-      const answerRecords = Object.entries(answers).map(([questionId, rawValue]) => ({
-        user_id: userId,
-        question_id: questionId,
+      const payload = {
         day,
-        raw_value: rawValue,
-      }))
-
-      const { error: insertError } = await supabase
-        .from('answers')
-        .insert(answerRecords)
-
-      if (insertError) throw insertError
-
-      // Mark day complete and increment current_day
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({
-          current_day: day,
-          last_session_date: new Date().toISOString().slice(0, 10),
-        })
-        .eq('id', userId)
-
-      if (updateError) throw updateError
-
-      // If day 3, redirect to profile. Otherwise go to today with completion message.
-      if (day === 3) {
-        router.push(`${BASE_PATH}/profile`)
-      } else {
-        router.push(`${BASE_PATH}/today?completed=true&nextDay=${day + 1}`)
+        answers: Object.entries(answers).map(([questionId, rawValue]) => ({
+          questionId,
+          rawValue,
+        })),
       }
+
+      const res = await fetch(`${BASE_PATH}/api/session/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `Submit failed (${res.status})`)
+      }
+
+      const { redirect: redirectPath } = await res.json()
+      router.push(redirectPath)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit session')
       setSubmitting(false)
@@ -75,27 +60,15 @@ export default function SessionUI({ userId, day, questions }: Props) {
   }
 
   function handleAnswer(value: string) {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQuestion.id]: value,
-    }))
+    setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }))
   }
 
-  const QuestionComponent = {
-    likert: LikertQuestion,
-    forced_choice: ForcedChoiceQuestion,
-    reflection: ReflectionQuestion,
-  }[currentQuestion.type]
-
-  if (!QuestionComponent) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <p className="text-red-500">Unknown question type: {currentQuestion.type}</p>
-        </div>
-      </main>
-    )
-  }
+  const QuestionComponent =
+    currentQuestion.type === 'likert'
+      ? LikertQuestion
+      : currentQuestion.type === 'forced_choice'
+      ? ForcedChoiceQuestion
+      : ReflectionQuestion
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-between px-6 py-12 bg-white dark:bg-slate-950">
@@ -118,7 +91,7 @@ export default function SessionUI({ userId, day, questions }: Props) {
       </div>
 
       {/* Question */}
-      <div className="flex-1 flex items-center justify-center w-full max-w-sm">
+      <div className="flex-1 flex items-center justify-center w-full max-w-sm py-8">
         <QuestionComponent
           question={currentQuestion}
           value={answers[currentQuestion.id]}
@@ -131,13 +104,7 @@ export default function SessionUI({ userId, day, questions }: Props) {
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <button
-          onClick={() => {
-            if (isLast) {
-              handleSubmit()
-            } else {
-              setStep((s) => s + 1)
-            }
-          }}
+          onClick={() => (isLast ? handleSubmit() : setStep((s) => s + 1))}
           disabled={!answered || submitting}
           className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-semibold text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >

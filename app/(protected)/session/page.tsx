@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BASE_PATH } from '@/lib/constants'
+import { getQuestionsForDay } from '@/lib/questions'
 import SessionUI from './SessionUI'
-import type { Database } from '@/lib/database.types'
-
-type Question = Database['public']['Tables']['questions']['Row']
 
 export default async function SessionPage() {
   const supabase = createClient()
@@ -12,7 +10,6 @@ export default async function SessionPage() {
 
   if (!user) redirect(`${BASE_PATH}/`)
 
-  // Get user's current day (starting from day 1 if 0)
   const { data: userData } = await supabase
     .from('users')
     .select('current_day, last_session_date, onboarding_completed')
@@ -23,32 +20,21 @@ export default async function SessionPage() {
     redirect(`${BASE_PATH}/onboarding`)
   }
 
-  const currentDay = Math.max(userData.current_day || 0, 1)
+  // next day to complete = completed days + 1
+  const day = ((userData?.current_day ?? 0) + 1) as 1 | 2 | 3
 
-  // If all 3 days done, go to profile
-  if (currentDay > 3) {
+  // All 3 days done → profile
+  if (day > 3) {
     redirect(`${BASE_PATH}/profile`)
   }
 
-  // Check if user already submitted today
+  // Already submitted today → "come back tomorrow"
   const today = new Date().toISOString().slice(0, 10)
-  if (userData.last_session_date === today) {
-    // Already done today, show "come back tomorrow" screen
-    const nextDay = Math.min(currentDay + 1, 3)
-    redirect(`${BASE_PATH}/today?completed=true&nextDay=${nextDay}`)
+  if (userData?.last_session_date === today) {
+    redirect(`${BASE_PATH}/today?completed=true&nextDay=${day + 1}`)
   }
 
-  // Fetch 4 questions for this day
-  const { data: questions } = await supabase
-    .from('questions')
-    .select('*')
-    .eq('day', currentDay)
-    .order('order_index', { ascending: true })
-    .limit(4)
+  const questions = getQuestionsForDay(day)
 
-  if (!questions || questions.length === 0) {
-    redirect(`${BASE_PATH}/today?error=no_questions`)
-  }
-
-  return <SessionUI userId={user.id} day={currentDay} questions={questions as Question[]} />
+  return <SessionUI userId={user.id} day={day} questions={questions} />
 }

@@ -1,6 +1,4 @@
-import type { Database } from '@/lib/database.types'
-
-type Question = Database['public']['Tables']['questions']['Row']
+import type { Question } from '@/lib/questions'
 
 interface Props {
   question: Question
@@ -9,14 +7,17 @@ interface Props {
 }
 
 export default function ReflectionQuestion({ question, value, onChange }: Props) {
+  const charCount = value?.length ?? 0
+  const MIN_CHARS = 30
+
   return (
-    <div className="space-y-4 w-full">
+    <div className="w-full space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white leading-snug mb-2">
           {question.text}
         </h3>
-        {question.context_text && (
-          <p className="text-sm text-slate-500 dark:text-slate-400">{question.context_text}</p>
+        {question.contextText && (
+          <p className="text-sm text-slate-500 dark:text-slate-400">{question.contextText}</p>
         )}
       </div>
 
@@ -24,12 +25,18 @@ export default function ReflectionQuestion({ question, value, onChange }: Props)
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Write your thoughts here…"
-        className="w-full h-40 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all resize-none"
+        maxLength={500}
+        className="w-full h-44 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all resize-none text-sm"
       />
 
-      <p className="text-xs text-slate-400">
-        {value?.length || 0} / 500 characters
-      </p>
+      <div className="flex justify-between items-center text-xs">
+        <span className={charCount < MIN_CHARS ? 'text-amber-500' : 'text-slate-400'}>
+          {charCount < MIN_CHARS
+            ? `${MIN_CHARS - charCount} more characters needed`
+            : 'Looking good'}
+        </span>
+        <span className="text-slate-400">{charCount} / 500</span>
+      </div>
     </div>
   )
 }
