@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { BASE_PATH } from '@/lib/constants'
+import { BASE_PATH, DISCOUNT_TOKEN_TTL_HOURS } from '@/lib/constants'
 import { QUESTIONS } from '@/lib/questions'
 import { DIMENSION_ORDER } from '@/lib/dimensions'
 import {
@@ -10,6 +10,7 @@ import {
   extractReflectionQuotes,
   type RawAnswer,
 } from '@/lib/scoring'
+import { generateExtendedReport } from '@/lib/templates'
 
 function nanoid(len = 8) {
   return Math.random().toString(36).slice(2, 2 + len)
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
       const dimensionScores = calculateDimensionScores(rawAnswers, QUESTIONS)
       const archetypeKey = determineArchetype(dimensionScores)
       const quotes = extractReflectionQuotes(rawAnswers, QUESTIONS)
+      const extendedReport = generateExtendedReport(dimensionScores)
 
       // Write per-dimension score rows
       const scoreRows = DIMENSION_ORDER.map((dim) => ({
@@ -94,14 +96,25 @@ export async function POST(request: NextRequest) {
       }))
       await admin.from('dimension_scores').insert(scoreRows)
 
-      // Write founder_profile
+      // Write founder_profile with extended report
       await admin.from('founder_profiles').insert({
         user_id: user.id,
         archetype_key: archetypeKey,
         dimension_scores: dimensionScores as unknown as Record<string, number>,
         reflection_quotes: quotes,
+        extended_report: extendedReport as unknown as Record<string, unknown>,
         share_code: nanoid(8),
       })
+
+      // Generate discount token valid for DISCOUNT_TOKEN_TTL_HOURS hours (for Day 4 email)
+      const discountToken = nanoid(16)
+      const discountExpiry = new Date(
+        Date.now() + DISCOUNT_TOKEN_TTL_HOURS * 60 * 60 * 1000,
+      ).toISOString()
+      await admin
+        .from('users')
+        .update({ discount_token: discountToken, discount_token_expires_at: discountExpiry })
+        .eq('id', user.id)
     }
 
     redirectPath = `${BASE_PATH}/profile`
