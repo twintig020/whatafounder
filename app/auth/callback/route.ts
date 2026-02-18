@@ -19,6 +19,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(`/?error=auth`, request.url))
   }
 
+  // New survey flow: redirect to after-auth to submit pending answers
+  const source = searchParams.get('source')
+  if (source === 'survey') {
+    return NextResponse.redirect(new URL(`/after-auth`, request.url))
+  }
+
   // Check if user needs onboarding
   const { data: { user } } = await supabase.auth.getUser()
 

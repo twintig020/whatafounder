@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 import { ARCHETYPE_LIST } from '@/lib/archetypes'
 import type { ArchetypeKey } from '@/lib/archetypes'
 import { DIMENSION_ORDER, DIMENSIONS } from '@/lib/dimensions'
-import LandingEmailForm from '@/components/LandingEmailForm'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const metadata: Metadata = {
@@ -58,7 +58,12 @@ export default async function LandingPage({ searchParams }: Props) {
         <p className="text-slate-600 dark:text-slate-400 text-lg mb-10 max-w-xs">
           4 questions a day. 3 days. One brutally honest profile.
         </p>
-        <LandingEmailForm />
+        <Link
+          href="/survey"
+          className="w-full max-w-sm py-3 rounded-xl bg-indigo-600 text-white font-semibold text-base text-center hover:bg-indigo-700 active:scale-[0.98] transition-all"
+        >
+          Start the quiz →
+        </Link>
         <p className="mt-4 text-xs text-slate-400">
           Free to start · No app store required
         </p>
@@ -141,7 +146,12 @@ export default async function LandingPage({ searchParams }: Props) {
         <p className="text-indigo-200 text-sm mb-8 max-w-xs mx-auto">
           Join founders who&apos;ve mapped their strengths and blind spots.
         </p>
-        <LandingEmailForm dark />
+        <Link
+          href="/survey"
+          className="px-8 py-3 rounded-xl bg-white text-indigo-600 font-semibold text-base text-center hover:bg-indigo-50 active:scale-[0.98] transition-all"
+        >
+          Start the quiz →
+        </Link>
       </section>
 
       {/* ─── Footer ───────────────────────────────────────────────────── */}
