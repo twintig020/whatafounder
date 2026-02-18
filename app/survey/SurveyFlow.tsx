@@ -141,7 +141,7 @@ export default function SurveyFlow({ questions }: Props) {
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?source=survey`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?source=survey`,
       },
     })
 
