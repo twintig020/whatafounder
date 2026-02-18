@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { BASE_PATH } from '@/lib/constants'
 import { getQuestionsForDay } from '@/lib/questions'
 import SessionUI from './SessionUI'
 

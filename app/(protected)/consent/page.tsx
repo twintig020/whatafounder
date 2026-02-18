@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { BASE_PATH } from '@/lib/constants'
 import ConsentForm from './ConsentForm'
 
 export default async function ConsentPage() {

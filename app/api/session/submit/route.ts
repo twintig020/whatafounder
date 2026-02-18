@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { BASE_PATH, DISCOUNT_TOKEN_TTL_HOURS } from '@/lib/constants'
+import { DISCOUNT_TOKEN_TTL_HOURS } from '@/lib/constants'
 import { QUESTIONS } from '@/lib/questions'
 import { DIMENSION_ORDER } from '@/lib/dimensions'
 import {

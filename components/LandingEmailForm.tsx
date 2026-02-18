@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { BASE_PATH } from '@/lib/constants'
-
 interface Props {
   dark?: boolean
 }

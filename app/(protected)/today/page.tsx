@@ -1,7 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { BASE_PATH } from '@/lib/constants'
-
 export default async function TodayPage({
   searchParams,
 }: {

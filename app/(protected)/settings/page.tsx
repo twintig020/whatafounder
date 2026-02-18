@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { BASE_PATH } from '@/lib/constants'
 import SettingsForm from './SettingsForm'
 
 export const metadata: Metadata = {
