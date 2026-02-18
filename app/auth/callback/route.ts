@@ -5,10 +5,10 @@ import { BASE_PATH } from '@/lib/constants'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? `${BASE_PATH}/today`
+  const next = searchParams.get('next') ?? `/today`
 
   if (!code) {
-    return NextResponse.redirect(new URL(`${BASE_PATH}/`, request.url))
+    return NextResponse.redirect(new URL(`/`, request.url))
   }
 
   const supabase = createClient()
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error('Auth callback error:', error)
-    return NextResponse.redirect(new URL(`${BASE_PATH}/?error=auth`, request.url))
+    return NextResponse.redirect(new URL(`/?error=auth`, request.url))
   }
 
   // Check if user needs onboarding
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle()
 
     if (!userData?.onboarding_completed) {
-      return NextResponse.redirect(new URL(`${BASE_PATH}/onboarding`, request.url))
+      return NextResponse.redirect(new URL(`/onboarding`, request.url))
     }
   }
 

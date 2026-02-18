@@ -8,7 +8,7 @@ export default async function SessionPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   const { data: userData } = await supabase
     .from('users')
@@ -17,7 +17,7 @@ export default async function SessionPage() {
     .maybeSingle()
 
   if (!userData?.onboarding_completed) {
-    redirect(`${BASE_PATH}/onboarding`)
+    redirect(`/onboarding`)
   }
 
   // next day to complete = completed days + 1
@@ -25,13 +25,13 @@ export default async function SessionPage() {
 
   // All 3 days done → profile
   if (day > 3) {
-    redirect(`${BASE_PATH}/profile`)
+    redirect(`/profile`)
   }
 
   // Already submitted today → "come back tomorrow"
   const today = new Date().toISOString().slice(0, 10)
   if (userData?.last_session_date === today) {
-    redirect(`${BASE_PATH}/today?completed=true&nextDay=${day + 1}`)
+    redirect(`/today?completed=true&nextDay=${day + 1}`)
   }
 
   const questions = getQuestionsForDay(day)

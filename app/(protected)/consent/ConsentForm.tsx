@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { BASE_PATH } from '@/lib/constants'
 
 interface Props {
   userId: string
@@ -36,7 +35,7 @@ export default function ConsentForm({ userId }: Props) {
       return
     }
 
-    router.push(`${BASE_PATH}/today`)
+    router.push('/today')
   }
 
   return (
@@ -144,7 +143,7 @@ export default function ConsentForm({ userId }: Props) {
 
         <div className="mt-8 text-center">
           <a
-            href={`${BASE_PATH}/privacy`}
+            href="/privacy"
             className="text-xs text-slate-400 hover:text-slate-600 underline underline-offset-2"
           >
             Read our Privacy Policy

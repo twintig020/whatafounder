@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const archetype = ARCHETYPES[profile.archetype_key as ArchetypeKey]
   const title = `I'm ${archetype.name} ${archetype.emoji} — ${archetype.tagline}`
-  const ogImageUrl = `${BASE_PATH}/api/og/profile/${params.code}`
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/og/profile/${params.code}`
 
   return {
     title,
@@ -117,7 +117,7 @@ export default async function SharePage({ params }: Props) {
             4 questions a day · 3 days · One honest profile.
           </p>
           <Link
-            href={`${BASE_PATH}/?ref=${profile.share_code}`}
+            href={`/?ref=${profile.share_code}`}
             className="inline-block w-full py-4 rounded-2xl bg-indigo-600 text-white font-semibold text-base hover:bg-indigo-700 active:scale-[0.98] transition-all text-center"
           >
             Discover your archetype →

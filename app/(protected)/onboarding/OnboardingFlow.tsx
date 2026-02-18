@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { BASE_PATH } from '@/lib/constants'
 
 const STEPS = [
   {
@@ -51,7 +50,7 @@ export default function OnboardingFlow() {
         .eq('id', user.id)
     }
 
-    router.push(`${BASE_PATH}/consent`)
+    router.push('/consent')
   }
 
   const current = STEPS[step]

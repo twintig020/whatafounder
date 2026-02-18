@@ -76,7 +76,7 @@ export default function SettingsForm({ email, aiProcessing, hasPushSubscription,
     setDeleting(true)
     const res = await fetch(`${BASE_PATH}/api/user/delete`, { method: 'DELETE' })
     if (res.ok) {
-      router.push(`${BASE_PATH}/`)
+      router.push('/')
     } else {
       setDeleting(false)
       setConfirmDelete(false)

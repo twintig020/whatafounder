@@ -16,7 +16,7 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   const admin = createAdminClient()
 
@@ -31,7 +31,7 @@ export default async function SettingsPage() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
-            href={`${BASE_PATH}/profile`}
+            href={`/profile`}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
           >
             ←

@@ -19,7 +19,7 @@ export default async function ProfilePage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   const admin = createAdminClient()
 
@@ -36,7 +36,7 @@ export default async function ProfilePage({ searchParams }: Props) {
   if (!profile) {
     const day = (userData?.current_day ?? 0) + 1
     if (day <= 3) {
-      redirect(`${BASE_PATH}/today`)
+      redirect(`/today`)
     }
 
     return (

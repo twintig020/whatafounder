@@ -7,7 +7,7 @@ export default async function ConsentPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   // If consent already given, go to today
   const { data: existingConsent } = await supabase
@@ -17,7 +17,7 @@ export default async function ConsentPage() {
     .limit(1)
 
   if (existingConsent?.[0]?.data_storage) {
-    redirect(`${BASE_PATH}/today`)
+    redirect(`/today`)
   }
 
   return <ConsentForm userId={user.id} />
