@@ -36,7 +36,7 @@ export default function LandingEmailForm({ dark = false }: Props) {
       return
     }
 
-    router.push(`${BASE_PATH}/auth/check-email`)
+    router.push('/auth/check-email')
   }
 
   const inputClass = dark

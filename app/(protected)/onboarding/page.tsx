@@ -7,7 +7,7 @@ export default async function OnboardingPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   // If already onboarded, skip to consent or today
   const { data: userData } = await supabase
@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
     .limit(1)
 
   if (userData?.[0]?.onboarding_completed) {
-    redirect(`${BASE_PATH}/today`)
+    redirect(`/today`)
   }
 
   return <OnboardingFlow />

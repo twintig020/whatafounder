@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { BASE_PATH } from '@/lib/constants'
+
 import type { Archetype } from '@/lib/archetypes'
 import type { Dimension } from '@/lib/dimensions'
 
@@ -20,7 +20,7 @@ export default function ArchetypePublicPage({
 }: Props) {
   const ctaHref = refCode
     ? `${BASE_PATH}/?ref=${refCode}`
-    : `${BASE_PATH}/`
+    : ``
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-16">
@@ -100,10 +100,10 @@ export default function ArchetypePublicPage({
 
         {/* Footer nav */}
         <div className="flex justify-center gap-6 text-xs text-slate-400 pt-4">
-          <Link href={`${BASE_PATH}/`} className="hover:text-slate-600 transition-colors">
+          <Link href={`/`} className="hover:text-slate-600 transition-colors">
             Home
           </Link>
-          <Link href={`${BASE_PATH}/privacy`} className="hover:text-slate-600 transition-colors">
+          <Link href={`/privacy`} className="hover:text-slate-600 transition-colors">
             Privacy
           </Link>
         </div>

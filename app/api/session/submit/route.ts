@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     .update({ current_day: day, last_session_date: today })
     .eq('id', user.id)
 
-  let redirectPath = `${BASE_PATH}/today?completed=true&nextDay=${day + 1}`
+  let redirectPath = `/today?completed=true&nextDay=${day + 1}`
 
   // On day 3: score everything and generate profile
   if (day === 3) {
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
     }
 
-    redirectPath = `${BASE_PATH}/profile`
+    redirectPath = '/profile'
   }
 
   return NextResponse.json({ ok: true, redirect: redirectPath })

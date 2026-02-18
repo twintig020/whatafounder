@@ -10,7 +10,7 @@ export default async function TodayPage({
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect(`${BASE_PATH}/`)
+  if (!user) redirect('/')
 
   const { data: userData } = await supabase
     .from('users')
@@ -20,12 +20,12 @@ export default async function TodayPage({
 
   // Guard: onboarding not done
   if (!userData?.onboarding_completed) {
-    redirect(`${BASE_PATH}/onboarding`)
+    redirect(`/onboarding`)
   }
 
   // Guard: all 3 days done → profile
   if ((userData?.current_day ?? 0) >= 3) {
-    redirect(`${BASE_PATH}/profile`)
+    redirect(`/profile`)
   }
 
   // If completed=true, show "come back tomorrow"
@@ -62,5 +62,5 @@ export default async function TodayPage({
   }
 
   // Otherwise, redirect to session (page.tsx will fetch questions)
-  redirect(`${BASE_PATH}/session`)
+  redirect(`/session`)
 }

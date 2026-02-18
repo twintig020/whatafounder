@@ -14,7 +14,7 @@ export default async function ProtectedLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`${BASE_PATH}/`)
+    redirect('/')
   }
 
   return <>{children}</>
