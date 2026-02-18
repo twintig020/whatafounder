@@ -19,8 +19,8 @@ export default function ArchetypePublicPage({
   referrerArchetypeName,
 }: Props) {
   const ctaHref = refCode
-    ? `${BASE_PATH}/?ref=${refCode}`
-    : ``
+    ? `/?ref=${refCode}`
+    : `/`
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-16">
