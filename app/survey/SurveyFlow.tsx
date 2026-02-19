@@ -13,7 +13,7 @@ interface Props {
   questions: Question[]
 }
 
-type Phase = 'questions' | 'consent' | 'email' | 'check-email'
+type Phase = 'questions' | 'email' | 'check-email'
 
 interface PendingSurvey {
   version: 1
@@ -32,7 +32,7 @@ export default function SurveyFlow({ questions }: Props) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
 
-  // Consent phase state
+  // Consent state (now inline in email step)
   const [dataStorage, setDataStorage] = useState(false)
   const [aiProcessing, setAiProcessing] = useState(false)
 
@@ -64,19 +64,22 @@ export default function SurveyFlow({ questions }: Props) {
   function handleNext() {
     if (!isAnswerValid) return
     if (isLastQuestion) {
-      setPhase('consent')
+      setPhase('email')
     } else {
       setStep((s) => s + 1)
     }
   }
 
-  // Day label: changes at step 0, 4, 8
-  const dayLabel = step < 4 ? 'Day 1' : step < 8 ? 'Day 2' : 'Day 3'
+  // ─── Phase 2: Email + Inline Consent ──────────────────────────────────────
 
-  // ─── Phase 2: Consent ─────────────────────────────────────────────────────
+  async function handleEmailSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim() || !dataStorage) return
 
-  function handleConsentConfirm() {
-    if (!dataStorage) return
+    setEmailLoading(true)
+    setEmailError(null)
+
+    // Save answers + consent to localStorage before auth
     const pending: PendingSurvey = {
       version: 1,
       completedAt: new Date().toISOString(),
@@ -89,30 +92,13 @@ export default function SurveyFlow({ questions }: Props) {
       })),
     }
     localStorage.setItem('waf_pending_survey', JSON.stringify(pending))
-    setPhase('email')
-  }
-
-  // ─── Phase 3: Email ───────────────────────────────────────────────────────
-
-  async function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-
-    setEmailLoading(true)
-    setEmailError(null)
 
     // If user is already authenticated, submit directly
     const supabase = createClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (session) {
-      // User is already logged in — submit answers directly
       try {
-        const pending = JSON.parse(localStorage.getItem('waf_pending_survey') ?? 'null') as PendingSurvey | null
-        if (!pending) {
-          router.push('/profile')
-          return
-        }
         const res = await fetch(`${BASE_PATH}/api/session/submit-all`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -189,59 +175,15 @@ export default function SurveyFlow({ questions }: Props) {
           <div className="text-center mb-8">
             <span className="text-4xl">🧭</span>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-4 mb-2">
-              Your profile is ready
+              Save your profile
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-              Enter your email to save it. We&apos;ll send a magic link — no password needed.
+              Enter your email and we&apos;ll send a magic link — no password needed.
             </p>
           </div>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-3">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              disabled={emailLoading}
-              className="w-full px-4 py-3 rounded-xl text-base outline-none focus:ring-2 focus:ring-indigo-500/30 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all"
-            />
-            {emailError && (
-              <p className="text-red-500 text-sm">{emailError}</p>
-            )}
-            <button
-              type="submit"
-              disabled={emailLoading}
-              className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-60"
-            >
-              {emailLoading ? 'Sending magic link…' : 'Save my profile →'}
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-slate-400 mt-4">
-            Free · No app store required · Delete anytime
-          </p>
-        </div>
-      </main>
-    )
-  }
-
-  if (phase === 'consent') {
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-white dark:bg-slate-950">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-10">
-            <span className="text-4xl">🔒</span>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-4 mb-2">
-              Almost there
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-              We need your permission to store your answers and generate your profile.
-              We never sell your data.
-            </p>
-          </div>
-
-          <div className="space-y-4">
+          {/* Inline consent */}
+          <div className="space-y-3 mb-6">
             {/* Required consent */}
             <label className={`flex gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-colors ${
               dataStorage
@@ -311,21 +253,34 @@ export default function SurveyFlow({ questions }: Props) {
                 </p>
               </div>
             </label>
-
-            <button
-              onClick={handleConsentConfirm}
-              disabled={!dataStorage}
-              className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-semibold text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
-            >
-              Continue →
-            </button>
-
-            <p className="text-center text-xs text-slate-400">
-              The required consent must be checked to continue.
-            </p>
           </div>
 
-          <div className="mt-8 text-center">
+          <form onSubmit={handleEmailSubmit} className="space-y-3">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              disabled={emailLoading}
+              className="w-full px-4 py-3 rounded-xl text-base outline-none focus:ring-2 focus:ring-indigo-500/30 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 transition-all"
+            />
+            {emailError && (
+              <p className="text-red-500 text-sm">{emailError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={emailLoading || !dataStorage}
+              className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {emailLoading ? 'Sending magic link…' : 'Save my profile →'}
+            </button>
+          </form>
+
+          <p className="text-center text-xs text-slate-400 mt-4">
+            Free · No app store required · Delete anytime
+          </p>
+          <div className="mt-4 text-center">
             <a
               href="/privacy"
               className="text-xs text-slate-400 hover:text-slate-600 underline underline-offset-2"
@@ -352,10 +307,7 @@ export default function SurveyFlow({ questions }: Props) {
     <main className="min-h-screen flex flex-col items-center justify-between px-6 py-12 bg-white dark:bg-slate-950">
       {/* Progress bar */}
       <div className="w-full max-w-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            {dayLabel}
-          </h2>
+        <div className="flex items-center justify-end mb-6">
           <span className="text-xs text-slate-400">
             {step + 1} of {questions.length}
           </span>
