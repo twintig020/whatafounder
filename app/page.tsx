@@ -6,6 +6,8 @@ import type { ArchetypeKey } from '@/lib/archetypes'
 import { DIMENSION_ORDER, DIMENSIONS } from '@/lib/dimensions'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: APP_NAME,
   description: APP_DESCRIPTION,
