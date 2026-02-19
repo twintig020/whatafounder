@@ -1,5 +1,5 @@
 // What a Founder — Service Worker
-const CACHE_NAME = 'whatafounder-v1'
+const CACHE_NAME = 'whatafounder-v2'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
