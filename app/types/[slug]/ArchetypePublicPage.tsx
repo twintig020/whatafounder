@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 
+import { BASE_PATH } from '@/lib/constants'
 import type { Archetype } from '@/lib/archetypes'
 import type { Dimension } from '@/lib/dimensions'
 
